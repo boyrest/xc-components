@@ -41,8 +41,10 @@ export default () => {
     {
       type: Input.Password,
       label: '密码',
-      placeholder: '请输入',
       name: 'pwd',
+      elProps: {
+        placeholder: '请输入',
+      },
       itemProps: {
         rules: [{ required: true, message: '请输入' }],
       },
@@ -99,5 +101,84 @@ export default () => {
       />
     </Form>
   );
+};
+```
+
+<h3>二维数组自定义布局</h3>
+
+```tsx
+import React from 'react';
+import { Input, Radio, Form, Space, Button } from 'antd';
+import { AntdFormRender } from 'xc-components-antd3';
+
+export default () => {
+  const layoutData = [
+    [
+      {
+        type: Input,
+        label: '姓名',
+        name: 'name',
+        elProps: {
+          placeholder: '请填写姓名',
+        },
+        decoratorOptions: {
+          rules: [{ required: true, message: '请填写' }],
+        },
+        itemProps: {
+          labelCol: { span: 4 },
+          wrapperCol: { span: 20 },
+        },
+      },
+      {
+        type: Radio.Group,
+        label: '性别',
+        name: 'gender',
+        elProps: {
+          options: [
+            { label: '女', value: 0 },
+            { label: '男', value: 1 },
+          ],
+        },
+        decoratorOptions: {
+          rules: [{ required: true, message: '请选择' }],
+        },
+        itemProps: {
+          labelCol: { span: 4 },
+          wrapperCol: { span: 20 },
+        },
+      },
+    ],
+    [
+      {
+        type: Input.TextArea,
+        label: '个人简',
+        elProps: {
+          rows: 6,
+        },
+        placeholder: '请输入',
+        name: 'bio',
+        itemProps: {
+          labelCol: { span: 2 },
+          wrapperCol: { span: 22 },
+        },
+      },
+    ],
+    [
+      {
+        render() {
+          return (
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button type="default" style={{ marginRight: 10 }}>
+                取消
+              </Button>
+              <Button type="primary">保存</Button>
+            </div>
+          );
+        },
+      },
+    ],
+  ];
+
+  return <AntdFormRender layoutData={layoutData}></AntdFormRender>;
 };
 ```

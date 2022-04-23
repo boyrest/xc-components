@@ -48,6 +48,7 @@ export type SpaceLayoutProps = {
    * 1维数组，存储组件配置信息/自定义渲染组件
    */
   layoutData: Item[];
+  form: any;
 };
 
 export type LayoutType = 'row' | 'space';
