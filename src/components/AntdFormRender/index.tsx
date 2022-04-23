@@ -59,6 +59,10 @@ const FormRenderer = forwardRef(
        */
       cols = 1,
       form,
+      /**
+       * 设置form
+       * */
+      formData,
     }: FormRenderProps,
     ref,
   ): React.ReactElement => {
@@ -94,22 +98,25 @@ const FormRenderer = forwardRef(
           arr.length = 0;
         }
       } while (arr.length);
-
-      return renderTowDimensionLayout(_tLayout);
+      return <Form {...formData}>{renderTowDimensionLayout(_tLayout, form)}</Form>;
     }
 
-    return !isOneDimensionArray ? (
-      renderTowDimensionLayout(layoutData, form)
-    ) : (
-      <div className="afr-flex">
-        <Row>
-          {(layoutData as Item[]).map((item, idx) => (
-            <ItemRender item={item} key={idx} span={24} layoutType="row" form={form} />
-          ))}
-        </Row>
-      </div>
+    return (
+      <Form {...formData}>
+        {!isOneDimensionArray ? (
+          renderTowDimensionLayout(layoutData, form)
+        ) : (
+          <div className="afr-flex">
+            <Row>
+              {(layoutData as Item[]).map((item, idx) => (
+                <ItemRender item={item} key={idx} span={24} layoutType="row" form={form} />
+              ))}
+            </Row>
+          </div>
+        )}
+      </Form>
     );
   },
 );
 
-export default Form.create({ name: 'warning-drawer' })(FormRenderer);
+export default Form.create({ name: String(new Date().getTime()) })(FormRenderer);

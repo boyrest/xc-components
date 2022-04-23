@@ -1,7 +1,8 @@
 ---
-nav:
-  title: Components
-  path: /components
+group:
+  title: 数据展示
+  order: 2
+title: Demo Foo
 ---
 
 ## Foo

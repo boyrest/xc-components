@@ -9,8 +9,21 @@ export default defineConfig({
   mode: 'site',
   lessLoader: {
     modifyVars: {
-      '@prefix': 'xc-components',
+      '@xc-prefix': 'xc-components',
     },
     javascriptEnabled: true,
   },
+  cssLoader: {
+    localsConvention: 'camelCase',
+  },
+  extraBabelPlugins: [
+    [
+      'import',
+      {
+        libraryName: 'antd',
+        libraryDirectory: 'es',
+        style: true,
+      },
+    ],
+  ],
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { GetFieldDecoratorOptions } from 'antd/lib/form/Form';
+import { FormProps, GetFieldDecoratorOptions } from 'antd/lib/form/Form';
 
 export type Item = {
   /** 组件类型，比如Input,Button,"input"  */
@@ -39,6 +39,8 @@ export type FormRenderProps = {
   cols?: number;
 
   form: any;
+
+  formData: FormProps;
 };
 
 export type SpaceLayoutProps = {
