@@ -1,4 +1,4 @@
-# xc-components
+# xc-components-antd3
 
 ## Getting Started
 
