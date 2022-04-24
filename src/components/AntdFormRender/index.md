@@ -17,11 +17,11 @@ title: AntdFormRender 动态渲染表单
 
 ```tsx
 import React, { useRef } from 'react';
-import { AntdFormRender } from 'xc-components-antd3';
+import { AntdFormRender } from 'xc-components-v3';
 import { Form, Button, Input } from 'antd';
 
-export default () => {
-  const formRef = useRef(null);
+export default Form.create()((props) => {
+  const { form } = props;
   const layoutData = [
     {
       type: Input,
@@ -59,8 +59,9 @@ export default () => {
       },
     },
   ];
-  return <AntdFormRender wrappedComponentRef={formRef} layoutData={layoutData} />;
-};
+
+  return <AntdFormRender form={form} layoutData={layoutData} />;
+});
 ```
 
 <h3>一行n列排列 (n<=4)</h3>
@@ -68,10 +69,10 @@ export default () => {
 ```tsx
 import React, { useState, useRef } from 'react';
 import { Form, Button, Input, Radio } from 'antd';
-import { AntdFormRender } from 'xc-components-antd3';
+import { AntdFormRender } from 'xc-components-v3';
 
-export default () => {
-  const formRef = useRef(null);
+export default Form.create()((props) => {
+  const { form } = props;
   const layoutData = [];
   const [cols, setCols] = useState(4);
 
@@ -85,7 +86,7 @@ export default () => {
   }
 
   return (
-    <Form layout="vertical">
+    <div>
       <Radio.Group onChange={(e) => setCols(Number(e.target.value))} value={cols}>
         <Radio value={1}>1行1列</Radio>
         <Radio value={2}>1行2列</Radio>
@@ -96,12 +97,12 @@ export default () => {
       <AntdFormRender
         layoutData={layoutData}
         cols={cols}
-        wrappedComponentRef={formRef}
+        form={form}
         formData={{ layout: 'vertical' }}
       />
-    </Form>
+    </div>
   );
-};
+});
 ```
 
 <h3>二维数组自定义布局</h3>
@@ -109,9 +110,10 @@ export default () => {
 ```tsx
 import React from 'react';
 import { Input, Radio, Form, Space, Button } from 'antd';
-import { AntdFormRender } from 'xc-components-antd3';
+import { AntdFormRender } from 'xc-components-v3';
 
-export default () => {
+export default Form.create()((props) => {
+  const { form } = props;
   const layoutData = [
     [
       {
@@ -179,6 +181,60 @@ export default () => {
     ],
   ];
 
-  return <AntdFormRender layoutData={layoutData}></AntdFormRender>;
-};
+  return <AntdFormRender layoutData={layoutData} form={form}></AntdFormRender>;
+});
+```
+
+<h3>表单联动</h3>
+
+```tsx
+import React, { useEffect, useRef } from 'react';
+import { AntdFormRender } from 'xc-components-v3';
+import { Form, Input, Radio } from 'antd';
+
+export default Form.create()((props) => {
+  const { form } = props;
+  const { getFieldValue, setFieldsValue } = form;
+  const layoutData = [
+    {
+      type: Radio.Group,
+      name: 'visible',
+      label: '动态显示',
+      elProps: {
+        options: [
+          { label: '显示', value: 1 },
+          { label: '不显示', value: 0 },
+        ],
+      },
+    },
+    {
+      type: Input,
+      label: '名称',
+      name: 'name',
+      elProps: {
+        placeholder: '名称为Tom的时候显示年龄',
+      },
+      visible: () => {
+        return getFieldValue('visible') === 1;
+      },
+    },
+    {
+      type: Input,
+      label: '年龄',
+      name: 'age',
+      elProps: {
+        placeholder: '请输入',
+      },
+      visible: () => {
+        return getFieldValue('name') === 'Tom';
+      },
+    },
+  ];
+
+  useEffect(() => {
+    setFieldsValue({ visible: 0 });
+  }, []);
+
+  return <AntdFormRender form={form} layoutData={layoutData} />;
+});
 ```

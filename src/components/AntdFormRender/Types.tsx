@@ -5,8 +5,8 @@ export type Item = {
   /** 组件类型，比如Input,Button,"input"  */
   type?: React.ComponentType | string;
 
-  /** Form.Item name, 字段名，支持数组 */
-  name?: string | Array<string | number>;
+  /** Form.Item name, 字段名 */
+  name?: string;
 
   /** Form.Item label, 标签的文本*/
   label?: React.ReactNode;
@@ -25,6 +25,9 @@ export type Item = {
 
   /** getFieldDecorator 设置options*/
   decoratorOptions?: GetFieldDecoratorOptions;
+
+  /** 判断是否渲染 */
+  visible?: () => boolean;
 };
 
 export type FormRenderProps = {
@@ -37,8 +40,6 @@ export type FormRenderProps = {
    * 定义一行渲染几个组件，layoutData为一维数组时生效, 可以是: 1 | 2 | 3 | 4, 默认1,
    */
   cols?: number;
-
-  form: any;
 
   formData: FormProps;
 };

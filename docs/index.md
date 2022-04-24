@@ -1,7 +1,7 @@
 ---
 hero:
-  title: xc-components-antd3
-  desc: xc-components-antd3 site example
+  title: xc-components-v3
+  desc: xc-components-v3 site example
   actions:
     - text: Getting Started
       link: /components
@@ -18,4 +18,4 @@ features:
 footer: Open-source MIT Licensed | Copyright © 2020<br />Powered by [dumi](https://d.umijs.org)
 ---
 
-## Hello xc-components-antd3!
+## Hello xc-components-v3!

@@ -2,30 +2,39 @@ import React, { forwardRef, useImperativeHandle } from 'react';
 import { Row, Form } from 'antd';
 import { FormRenderProps, Item } from './Types';
 import ItemRender from './ItemRender';
+import { FormComponentProps } from 'antd/lib/form/Form';
+import { getPrefixCls } from '../../utils/tools';
 
-const isType = (type) => (n) => {
+const isType = (type: string) => (n: unknown) => {
   return Object.prototype.toString.call(n) === `[object ${type}]`;
 };
 
 const isNumber = isType('Number');
 
-const renderTowDimensionLayout = (layoutData, form) => {
+const renderTowDimensionLayout = ({
+  layoutData,
+  form,
+}: { layoutData: Item[] | Item[][] } & FormComponentProps) => {
   return (
-    <div className="afr-flex">
+    <div className={getPrefixCls('antd-form-render')}>
       {layoutData.map((arr, idx) => {
-        const len = arr.length;
-        if (24 % len !== 0) {
-          throw new Error('数组的长度必须能被24整除');
-        }
-        const span = 24 / len;
+        if (Array.isArray(arr)) {
+          const len = arr.length;
+          if (24 % len !== 0) {
+            throw new Error('数组的长度必须能被24整除');
+          }
+          const span = 24 / len;
 
-        return (
-          <Row key={idx} gutter={{ xs: 8, sm: 16, md: 24 }}>
-            {arr.map((item, subIndex) => (
-              <ItemRender item={item} key={subIndex} span={span} layoutType="row" form={form} />
-            ))}
-          </Row>
-        );
+          return (
+            <Row key={idx} gutter={{ xs: 8, sm: 16, md: 24 }}>
+              {arr.map((item, subIndex) => (
+                <ItemRender item={item} key={subIndex} span={span} layoutType="row" form={form} />
+              ))}
+            </Row>
+          );
+        } else {
+          throw new Error('传参不是数组');
+        }
       })}
     </div>
   );
@@ -47,76 +56,81 @@ const renderTowDimensionLayout = (layoutData, form) => {
  * }
  * @return {*}  {React.ReactElement}
  */
-const FormRenderer = forwardRef(
-  (
-    {
-      /**
-       * 1或2维数组，存储组件配置信息/自定义渲染组件
-       */
-      layoutData,
-      /**
-       * 定义一行渲染几个组件，layoutData为一维数组时生效, 可以是: 1 | 2 | 3 | 4, 默认1,
-       */
-      cols = 1,
-      form,
-      /**
-       * 设置form
-       * */
-      formData,
-    }: FormRenderProps,
-    ref,
-  ): React.ReactElement => {
-    let isOneDimensionArray = false;
-    const firstItem = layoutData[0];
-    if (!Array.isArray(firstItem)) {
-      isOneDimensionArray = true;
-    }
-    useImperativeHandle(ref, () => ({
-      getFormHandle: () => {
-        return form;
-      },
-    }));
-    const useAutoLayout = isOneDimensionArray && isNumber(cols) && cols > 1 && cols <= 4;
+const FormRenderer: React.FC<FormRenderProps & FormComponentProps> = ({
+  /**
+   * 1或2维数组，存储组件配置信息/自定义渲染组件
+   */
+  layoutData,
+  /**
+   * 定义一行渲染几个组件，layoutData为一维数组时生效, 可以是: 1 | 2 | 3 | 4, 默认1,
+   */
+  cols = 1,
+  formData = {},
+  form,
+}) => {
+  let isOneDimensionArray = false;
 
-    if (useAutoLayout) {
-      const arr = layoutData as Item[];
-      const _tLayout = [];
-      do {
-        if (arr.length >= cols) {
-          _tLayout.push(arr.slice(0, cols));
-          arr.splice(0, cols);
-        } else {
-          let left = cols - arr.length;
-          while (left--) {
-            arr.push({
-              render(): React.ReactElement {
-                return null; // placeholder
-              },
-            });
-          }
-          _tLayout.push(arr.slice(0, cols));
-          arr.length = 0;
+  // @ts-ignore
+  layoutData = layoutData.filter((item) => {
+    if (Array.isArray(item)) {
+      return item.map((itemInner) => {
+        if (itemInner.visible) {
+          return itemInner.visible();
         }
-      } while (arr.length);
-      return <Form {...formData}>{renderTowDimensionLayout(_tLayout, form)}</Form>;
+        return true;
+      });
+    } else {
+      if (item.visible) {
+        return item.visible();
+      }
+      return true;
     }
+  });
 
-    return (
-      <Form {...formData}>
-        {!isOneDimensionArray ? (
-          renderTowDimensionLayout(layoutData, form)
-        ) : (
-          <div className="afr-flex">
-            <Row>
-              {(layoutData as Item[]).map((item, idx) => (
-                <ItemRender item={item} key={idx} span={24} layoutType="row" form={form} />
-              ))}
-            </Row>
-          </div>
-        )}
-      </Form>
-    );
-  },
-);
+  const firstItem = layoutData[0];
+  if (!Array.isArray(firstItem)) {
+    isOneDimensionArray = true;
+  }
+  const useAutoLayout = isOneDimensionArray && isNumber(cols) && cols > 1 && cols <= 4;
 
-export default Form.create({ name: String(new Date().getTime()) })(FormRenderer);
+  if (useAutoLayout) {
+    const arr = layoutData as Item[];
+    const _tLayout = [];
+    do {
+      if (arr.length >= cols) {
+        _tLayout.push(arr.slice(0, cols));
+        arr.splice(0, cols);
+      } else {
+        let left = cols - arr.length;
+        while (left--) {
+          arr.push({
+            render(): React.ReactElement {
+              return <React.Fragment></React.Fragment>;
+            },
+          });
+        }
+        _tLayout.push(arr.slice(0, cols));
+        arr.length = 0;
+      }
+    } while (arr.length);
+    return <Form {...formData}>{renderTowDimensionLayout({ layoutData: _tLayout, form })}</Form>;
+  }
+
+  return (
+    <Form {...formData}>
+      {!isOneDimensionArray ? (
+        renderTowDimensionLayout({ layoutData, form })
+      ) : (
+        <div className={getPrefixCls('antd-form-render')}>
+          <Row>
+            {(layoutData as Item[]).map((item, idx) => (
+              <ItemRender item={item} key={idx} span={24} layoutType="row" form={form} />
+            ))}
+          </Row>
+        </div>
+      )}
+    </Form>
+  );
+};
+
+export default FormRenderer;

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Rule } from 'rc-field-form/lib/interface';
 import type { SpaceProps } from 'antd';
+import { WrappedFormUtils } from 'antd/lib/form/Form';
+
 export declare type Item = {
   /** 组件类型，比如Input,Button,"input"  */
   type?: React.ComponentType | string;
